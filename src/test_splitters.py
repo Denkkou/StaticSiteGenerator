@@ -1,5 +1,5 @@
 import unittest
-from splitter import split_nodes_delimiter
+from splitters import split_nodes_delimiter
 from textnode import TextNode, TextType
 
 class TestSplitter(unittest.TestCase):
@@ -49,3 +49,5 @@ class TestSplitter(unittest.TestCase):
             TextNode(" within it", TextType.TEXT)
         ]
         self.assertEqual(new_nodes, expected)
+    
+    # Splitter functions for images and links
