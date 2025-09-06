@@ -22,7 +22,7 @@ def text_node_to_html_node(text_node):
 def text_to_textnodes(text):
     nodes = [TextNode(text, TextType.TEXT)]
 
-    # Code > Images > Links >  Bold > Italics
+    # Code > Images > Links > Bold > Italics
     splitters = [
         lambda ns: split_nodes_delimiter(ns, "`", TextType.CODE),
         lambda ns: split_nodes_image(ns),
