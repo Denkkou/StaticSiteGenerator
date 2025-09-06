@@ -18,6 +18,8 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
                             new_nodes.append(TextNode(part[1], TextType.TEXT))
                         else: # odds are special
                             new_nodes.append(TextNode(part[1], text_type))
+            elif delim_count == 0:
+                new_nodes.append(node)
             else:
                 raise Exception("Invalid markdown syntax: Unpaired delimiter")
     return new_nodes

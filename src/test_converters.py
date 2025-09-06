@@ -1,5 +1,5 @@
 import unittest
-from converter import text_node_to_html_node
+from converters import text_node_to_html_node, text_to_textnodes
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode
 
@@ -44,3 +44,43 @@ class TestConverter(unittest.TestCase):
         with self.assertRaises(Exception):
             node = TextNode("This is an unhandled node type", 10)
             html_node = text_node_to_html_node(node)
+    
+    def test_comprehensive_split(self):
+        text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        textnodes = text_to_textnodes(text)
+        self.assertListEqual(
+            [
+                TextNode("This is ", TextType.TEXT),
+                TextNode("text", TextType.BOLD),
+                TextNode(" with an ", TextType.TEXT),
+                TextNode("italic", TextType.ITALIC),
+                TextNode(" word and a ", TextType.TEXT),
+                TextNode("code block", TextType.CODE),
+                TextNode(" and an ", TextType.TEXT),
+                TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+                TextNode(" and a ", TextType.TEXT),
+                TextNode("link", TextType.LINK, "https://boot.dev"),
+            ],
+            textnodes
+        )
+
+    def test_comprehensive_split_text(self):
+        text = "There is nothing to split in this text."
+        textnodes = text_to_textnodes(text)
+        self.assertListEqual(
+            [
+                TextNode("There is nothing to split in this text.", TextType.TEXT),
+            ],
+            textnodes
+        )
+    
+    def test_comprehensive_split_nested(self):
+        text = "There are delimiters within the image ![image_with_underscores](https://image.img)"
+        textnodes = text_to_textnodes(text)
+        self.assertListEqual(
+            [
+                TextNode("There are delimiters within the image ", TextType.TEXT),
+                TextNode("image_with_underscores", TextType.IMAGE, "https://image.img")
+            ],
+            textnodes
+        )
