@@ -1,5 +1,5 @@
 import unittest
-from converters import text_node_to_html_node, text_to_textnodes
+from converters import text_node_to_html_node, text_to_textnodes, markdown_to_blocks
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode
 
@@ -45,6 +45,7 @@ class TestConverter(unittest.TestCase):
             node = TextNode("This is an unhandled node type", 10)
             html_node = text_node_to_html_node(node)
     
+    # Text to TextNode
     def test_comprehensive_split(self):
         text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
         textnodes = text_to_textnodes(text)
@@ -83,4 +84,53 @@ class TestConverter(unittest.TestCase):
                 TextNode("image_with_underscores", TextType.IMAGE, "https://image.img")
             ],
             textnodes
+        )
+    
+    # Markdown to Blocks
+    def test_markdown_to_blocks(self):
+        md = """
+This is **bolded** paragraph
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+- This is a list
+- with items
+"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+            ],
+        )
+
+    def test_markdown_to_blocks_gappy(self):
+        md = """
+This is **bolded** paragraph
+
+
+This is another paragraph with _italic_ text and `code` here
+
+
+This is the same paragraph on a new line
+
+
+- This is a list
+
+
+- with items
+"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here",
+                "This is the same paragraph on a new line",
+                "- This is a list",
+                "- with items",
+            ],
         )

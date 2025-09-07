@@ -37,3 +37,12 @@ def apply_splitters(nodes, splitter_list):
     for splitter in splitter_list:
         current = splitter(current)
     return current
+
+def markdown_to_blocks(markdown):
+    blocks = markdown.split('\n\n')
+    stripped_blocks = []
+    for block in blocks:
+        stripped = block.strip()
+        if stripped != "":
+            stripped_blocks.append(stripped)
+    return stripped_blocks
