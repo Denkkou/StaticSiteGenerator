@@ -1,6 +1,8 @@
 from textnode import TextNode, TextType
 from leafnode import LeafNode
 from splitters import *
+from enum import Enum
+import re
     
 def text_node_to_html_node(text_node):
     match text_node.text_type:
@@ -46,3 +48,39 @@ def markdown_to_blocks(markdown):
         if stripped != "":
             stripped_blocks.append(stripped)
     return stripped_blocks
+
+class BlockType(Enum):
+    PARAGRAPH = "paragraph"
+    HEADING = "heading"
+    CODE = "code"
+    QUOTE = "quote"
+    UNORDERED_LIST = "unordered list"
+    ORDERED_LIST = "ordered list"
+
+def block_to_blocktype(md_block):
+    # Code > Headings > UList > OList > Quote > Paragraph
+    md_block = md_block.strip()
+    lines = md_block.split("\n")
+
+    if md_block.startswith("```") and md_block.endswith("```"):
+        return BlockType.CODE
+
+    if re.match(r"^#{1,6} [^\s].*", md_block):
+        return BlockType.HEADING
+    
+    if all(re.match(r"^- [^\s].*$", line) for line in lines):
+        return BlockType.UNORDERED_LIST
+    
+    if all(re.match(r"^\d. .*$", line) for line in lines):
+        current_number = 1
+        for line in lines:
+            if re.match(f"^{current_number}. ", line):
+                current_number += 1
+            else:
+                return BlockType.PARAGRAPH
+        return BlockType.ORDERED_LIST
+
+    if all(re.match(r"^>.*$", line) for line in lines):
+        return BlockType.QUOTE
+    
+    return BlockType.PARAGRAPH

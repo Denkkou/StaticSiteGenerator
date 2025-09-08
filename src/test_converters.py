@@ -1,5 +1,5 @@
 import unittest
-from converters import text_node_to_html_node, text_to_textnodes, markdown_to_blocks
+from converters import *
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode
 
@@ -134,3 +134,134 @@ This is the same paragraph on a new line
                 "- with items",
             ],
         )
+    
+    # Block to BlockType
+    def test_blocktype_code(self):
+        md = """
+``` This is a code block ```
+"""
+        self.assertEqual(block_to_blocktype(md), BlockType.CODE)
+
+    def test_blocktype_code_nested_types(self):
+        md = """
+```
+This is a code block.
+
+>Quote
+> Quote again
+
+1. list
+2. list2
+3. list3
+
+- test
+- test
+- test
+
+### heading
+```
+"""
+        self.assertEqual(block_to_blocktype(md), BlockType.CODE)
+
+    def test_blocktype_heading(self):
+        md = """
+#### This heading has four hashes
+"""
+        self.assertEqual(block_to_blocktype(md), BlockType.HEADING)
+
+    def test_blocktype_heading_invalid(self):
+        md = """
+####This heading has four hashes but no space
+"""
+        self.assertEqual(block_to_blocktype(md), BlockType.PARAGRAPH)
+
+    def test_blocktype_ulist(self):
+        md = """
+- List 1
+- List 2
+- List 3
+"""
+        self.assertEqual(block_to_blocktype(md), BlockType.UNORDERED_LIST)
+
+    def test_blocktype_ulist_malformed(self):
+        md = """
+- List 1
+- List 2
+List 3
+1. hello
+"""
+        self.assertEqual(block_to_blocktype(md), BlockType.PARAGRAPH)
+
+    def test_blocktype_olist(self):
+        md = """
+1. 1
+2. 2
+3. 3
+4. 4
+"""
+        self.assertEqual(block_to_blocktype(md), BlockType.ORDERED_LIST)
+
+    def test_blocktype_olist_malformed(self):
+        md = """
+1. 1
+2. 2
+3. 3
+4. 4
+asdfg
+"""
+        self.assertEqual(block_to_blocktype(md), BlockType.PARAGRAPH)
+
+    def test_blocktype_olist_unordered(self):
+        md = """
+1. 1
+2. 2
+3. 3
+5. 5
+"""
+        self.assertEqual(block_to_blocktype(md), BlockType.PARAGRAPH)
+
+    def test_blocktype_olist_no_spaces(self):
+        md = """
+1.1
+2.2
+4.4
+3.3
+"""
+        self.assertEqual(block_to_blocktype(md), BlockType.PARAGRAPH)
+    
+    def test_blocktype_olist_extra_spaces(self):
+        md = """
+1. 1
+2.  2
+3.   3
+4.    4
+"""
+        self.assertEqual(block_to_blocktype(md), BlockType.ORDERED_LIST)
+
+    def test_blocktype_quote(self):
+        md = """
+> Regular
+> Quote
+> 
+> By me
+"""
+        self.assertEqual(block_to_blocktype(md), BlockType.QUOTE)
+
+    def test_blocktype_quote_malformed(self):
+        md = """
+> Regular
+> Quote
+> 
+boo!!!
+> By me
+"""
+        self.assertEqual(block_to_blocktype(md), BlockType.PARAGRAPH)
+
+    def test_blocktype_quote_spaced(self):
+        md = """
+>     Spaced out
+>    Quote
+>         oooo
+> By me
+"""
+        self.assertEqual(block_to_blocktype(md), BlockType.QUOTE)
