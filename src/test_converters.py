@@ -265,3 +265,139 @@ boo!!!
 > By me
 """
         self.assertEqual(block_to_blocktype(md), BlockType.QUOTE)
+    
+    # Markdown to HTML Node
+    def test_paragraphs(self):
+        md = """
+This is **bolded** paragraph
+text in a p
+tag here
+
+This is another paragraph with _italic_ text and `code` here
+
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+        html,
+        "<div><p>This is <b>bolded</b> paragraph text in a p tag here</p><p>This is another paragraph with <i>italic</i> text and <code>code</code> here</p></div>",
+        )
+
+    def test_codeblock(self):
+        md = """
+```
+This is text that _should_ remain
+the **same** even with inline stuff
+```
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
+        )
+
+    def test_quoteblock(self):
+        md = """
+This is not a quote.
+
+> This
+> Is
+> A
+> Quote
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><p>This is not a quote.</p><blockquote>This\nIs\nA\nQuote</blockquote></div>",
+        )
+
+    def test_headingblock(self):
+        md = """
+P
+
+# H1
+
+## H2
+
+### H3
+
+#### H4
+
+##### H5
+
+###### H6
+
+####### P
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><p>P</p><h1>H1</h1><h2>H2</h2><h3>H3</h3><h4>H4</h4><h5>H5</h5><h6>H6</h6><p>####### P</p></div>",
+        )
+
+    def test_ulblock(self):
+        md = """
+This is an unordered list:
+
+- one
+- two
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><p>This is an unordered list:</p><ul><li>one</li><li>two</li></ul></div>",
+        )
+
+    def test_ulblock_malformed(self):
+        md = """
+This is an unordered list:
+
+- one
+- two
+I shouldnt be here
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><p>This is an unordered list:</p><p>- one - two I shouldnt be here</p></div>",
+        ) # Paragraphs just join newlines by spaces making this "- one - two I shouldnt be here"
+
+    def test_olblock(self):
+        md = """
+This is an ordered list:
+
+1. one
+2. two
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><p>This is an ordered list:</p><ol><li>one</li><li>two</li></ol></div>",
+        )
+    
+    def test_mixedblock(self):
+        md = """
+# Sample Markdown
+
+This is some basic, sample markdown.
+
+## Second Heading
+
+1. One
+2. Two
+3. Three
+
+> Blockquote
+"""
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><h1>Sample Markdown</h1><p>This is some basic, sample markdown.</p><h2>Second Heading</h2><ol><li>One</li><li>Two</li><li>Three</li></ol><blockquote>Blockquote</blockquote></div>"
+        )

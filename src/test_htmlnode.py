@@ -19,10 +19,5 @@ class TestHTMLNode(unittest.TestCase):
         node = HTMLNode("p", "text inside paragraph", [1, 2, 3], {"href": "www.google.com", "target": "_blank"})
         self.assertIn("HTMLNode(", node.__repr__())
 
-    def test_tohtml(self):
-        node = HTMLNode("p", "text inside paragraph", [1, 2, 3], {"href": "www.google.com", "target": "_blank"})
-        with self.assertRaises(NotImplementedError):
-            node.to_html()
-
 if __name__ == "__main__":
     unittest.main()

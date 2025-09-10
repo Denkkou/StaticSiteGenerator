@@ -9,7 +9,10 @@ class HTMLNode:
         return f"HTMLNode({self.tag}, {self.value}, {self.children}, {self.props.items()})"
 
     def to_html(self):
-        raise NotImplementedError
+        children_content = ""
+        for child in self.children:
+            children_content += child.to_html()
+        return f"<{self.tag}>{children_content}</{self.tag}>"
     
     def props_to_html(self):
         attributes_string = ""

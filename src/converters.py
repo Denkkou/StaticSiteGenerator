@@ -1,5 +1,6 @@
 from textnode import TextNode, TextType
 from leafnode import LeafNode
+from htmlnode import HTMLNode
 from splitters import *
 from enum import Enum
 import re
@@ -84,3 +85,83 @@ def block_to_blocktype(md_block):
         return BlockType.QUOTE
     
     return BlockType.PARAGRAPH
+
+def markdown_to_html_node(markdown):
+    parent_htmlnode = HTMLNode("div", None, [], None)
+    blocknodes = []
+    blocks = markdown_to_blocks(markdown)
+    for block in blocks:
+        block_type = block_to_blocktype(block)
+        blocknode = None        
+        match block_type:
+            case BlockType.HEADING: 
+                blocknode = heading_block_to_html(block)
+            case BlockType.CODE:
+                blocknode = code_block_to_html(block)
+            case BlockType.QUOTE:
+                blocknode = quote_block_to_html(block)
+            case BlockType.UNORDERED_LIST:
+                blocknode = unordered_list_block_to_html(block)
+            case BlockType.ORDERED_LIST:
+                blocknode = ordered_list_block_to_html(block)
+            case BlockType.PARAGRAPH:
+                blocknode = paragraph_block_to_html(block)
+            case _:
+                raise Exception("Unhandled error")      
+        blocknodes.append(blocknode)    
+    parent_htmlnode.children = blocknodes
+    return parent_htmlnode
+
+def text_to_children(text):
+    return [text_node_to_html_node(tn) for tn in text_to_textnodes(text)]
+
+def heading_block_to_html(block):
+    number_of_hashes = 0
+    while number_of_hashes < min(6, len(block)) and block[number_of_hashes] == "#":
+        number_of_hashes += 1
+    
+    text = block[number_of_hashes+1:].strip()    
+    children = text_to_children(text)
+    return HTMLNode(f"h{number_of_hashes}", None, children, None)
+
+def code_block_to_html(block):
+    code_lines = block.splitlines()
+    code_text = "\n".join(code_lines[1:-1]) + "\n"
+    code_html = text_node_to_html_node(TextNode(code_text, TextType.CODE))
+    return HTMLNode("pre", None, [code_html], None)
+
+def quote_block_to_html(block):
+    quote_lines = block.splitlines()
+    tidied_lines = []
+    for line in quote_lines:
+        if line.startswith(">"):
+            line = line[1:].strip()
+        elif line.startswith("> "):
+            line = line[2:].strip()
+        tidied_lines.append(line)     
+    text = "\n".join(tidied_lines)
+    children = text_to_children(text)
+    return HTMLNode("blockquote", None, children, None)
+
+def unordered_list_block_to_html(block):
+    list_lines = block.splitlines()
+    li_children = []
+    for line in list_lines:
+        line = line[2:].strip()
+        li_children.append(HTMLNode("li", None, text_to_children(line), None)) 
+    return HTMLNode("ul", None, li_children, None)
+    
+
+def ordered_list_block_to_html(block):
+    list_lines = block.splitlines()
+    li_children = []
+    for line in list_lines:
+        dot_space = line.find(". ")
+        line = line[dot_space + 2:].strip()
+        li_children.append(HTMLNode("li", None, text_to_children(line), None)) 
+    return HTMLNode("ol", None, li_children, None)
+
+def paragraph_block_to_html(block):
+    text = " ".join(block.splitlines()).strip()
+    children = text_to_children(text)
+    return HTMLNode("p", None, children, None)
