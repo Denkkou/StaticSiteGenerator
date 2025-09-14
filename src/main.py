@@ -8,7 +8,7 @@ def main():
     
     clear_directory(public_path)
     copy_static_to_public(static_path, public_path)
-    generate_page("content/index.md", "template.html", "public/index.html")
+    generate_page_recursive("content/", "template.html", "public/")
 
 
 def copy_static_to_public(static_path, public_path):
@@ -66,9 +66,18 @@ def generate_page(from_path, template_path, dest_path):
     with open(dest_path, 'w') as file:
         file.write(output)
 
+def generate_page_recursive(dir_path_content, template_path, dest_dir_path):
+    contents = os.listdir(dir_path_content)
+    print(contents)
 
-
-
+    for item in contents:
+        item_path = os.path.join(dir_path_content, item)
+        if os.path.isfile(item_path):
+            file_name = os.path.splitext(item)[0] + ".html"
+            generate_page(item_path, template_path, os.path.join(dest_dir_path, file_name))
+        elif os.path.isdir(item_path):
+            os.mkdir(os.path.join(dest_dir_path, item))
+            generate_page_recursive(os.path.join(dir_path_content, item), template_path, os.path.join(dest_dir_path, item))           
 
 if __name__ == "__main__":
     main()
