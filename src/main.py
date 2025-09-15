@@ -3,9 +3,9 @@ import os, shutil, re, sys
 from converters import markdown_to_html_node
 
 def main():
-    public_path = "docs/"
-    static_path = "static/"
-    content_path = "content/"
+    public_path = "/docs/"
+    static_path = "/static/"
+    content_path = "/content/"
     if sys.argv:
         base_path = sys.argv[0]
     else: 
