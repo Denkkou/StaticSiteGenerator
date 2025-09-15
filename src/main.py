@@ -3,11 +3,11 @@ import os, shutil, re, sys
 from converters import markdown_to_html_node
 
 def main():
-    public_path = "/docs/"
-    static_path = "/static/"
-    content_path = "/content/"
+    public_path = "docs/"
+    static_path = "static/"
+    content_path = "content/"
     if sys.argv:
-        base_path = sys.argv[0]
+        base_path = sys.argv[1]
     else: 
         base_path = "/"
     
@@ -64,11 +64,12 @@ def generate_page(from_path, template_path, dest_path, base_path):
 
     header = extract_title(markdown)
 
+    print(base_path)
     output = template[:]
     output = output.replace("{{ Title }}", header)
     output = output.replace("{{ Content }}", html_string)
-    output = output.replace('href="/', f'href="{base_path}')
-    output = output.replace('src="/', f'src="{base_path}')
+    output = output.replace('href="', f'href="{base_path}')
+    output = output.replace('src="', f'src="{base_path}')
 
     with open(dest_path, 'w') as file:
         file.write(output)
